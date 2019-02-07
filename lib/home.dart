@@ -1,3 +1,4 @@
+import 'package:flock_out/stage.dart';
 import 'package:flutter/material.dart';
 
 class StartPage extends StatelessWidget {
@@ -12,7 +13,13 @@ class StartPage extends StatelessWidget {
       ),
       body: Center(
         child: RaisedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) {
+                return Stage();
+              }),
+            );
+          },
           child: Text("start"),
         ),
       ),
