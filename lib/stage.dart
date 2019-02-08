@@ -2,22 +2,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-class Stage extends StatefulWidget {
-  @override
-  _StageState createState() => _StageState();
-}
-
-class _StageState extends State<Stage> {
+class Stage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
+    final deviceWidth = MediaQuery.of(context).size.width;
 
+    final deviceHeight = MediaQuery.of(context).size.height;
+    final padding = MediaQuery.of(context).padding;
+    final minHiehgt = padding.top;
+    final maxHeight = deviceHeight - padding.bottom;
     return Scaffold(
       body: Center(
         child: CircleRenderWidget(
-          height: height,
-          width: width,
+          minHeight: minHiehgt,
+          maxHeight: maxHeight,
+          width: deviceWidth,
         ),
       ),
     );
@@ -26,24 +25,28 @@ class _StageState extends State<Stage> {
 
 class CircleRenderWidget extends SingleChildRenderObjectWidget {
   final double width;
-  final double height;
+  final double maxHeight;
+  final double minHeight;
 
   CircleRenderWidget({
+    @required this.minHeight,
     @required this.width,
-    @required this.height,
+    @required this.maxHeight,
   });
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _MyRenderBox(
-      height: height,
+      maxHeight: maxHeight,
+      minHeight: minHeight,
       width: width,
     )..animate();
   }
 }
 
 class _MyRenderBox extends RenderBox {
-  final double height;
+  final double maxHeight;
+  final double minHeight;
   final double width;
   double _x = 0.0;
   double _y = 0.0;
@@ -51,10 +54,11 @@ class _MyRenderBox extends RenderBox {
   double _ySpeed = 3.0;
 
   _MyRenderBox({
-    @required this.height,
+    @required this.maxHeight,
+    @required this.minHeight,
     @required this.width,
   })  : _x = width / 2,
-        _y = height / 2;
+        _y = maxHeight / 2;
 
   void animate() {
     SchedulerBinding.instance.scheduleFrameCallback((Duration timeStampe) {
@@ -64,6 +68,11 @@ class _MyRenderBox extends RenderBox {
     });
   }
 
+  @override
+  performLayout() {
+    this.size = Size(width, maxHeight);
+  }
+
   void _calculateNextPosition() {
     _x += _xSpeed;
     _y += _ySpeed;
@@ -71,7 +80,7 @@ class _MyRenderBox extends RenderBox {
     if (_x < 0 || width < _x) {
       _xSpeed = _xSpeed * (-1);
     }
-    if (_y < 0 || height < _y) {
+    if (_y < minHeight || maxHeight < _y) {
       _ySpeed = _ySpeed * (-1);
     }
   }
